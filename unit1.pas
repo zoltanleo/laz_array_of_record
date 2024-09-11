@@ -5,7 +5,7 @@ unit Unit1;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Generics.Collections;
 
 type
   TMyRec = packed record
@@ -26,19 +26,26 @@ type
     procedure SetCount(AValue: SizeInt);
     procedure SetMyRec(Index: SizeInt; AValue: TMyRec);
   public
+    constructor Create;
     destructor Destroy; override;
     property Capacity: SizeInt read GetCapacity write SetCapacity;
     property MyRec[Index: SizeInt]: TMyRec read GetMyRec write SetMyRec; // Свойство для доступа к элементу массива
     property Count: SizeInt read GetCount write SetCount; // Свойство для получения количества записей в массиве
     procedure AddMyRec(const AMyRec: TMyRec); // Метод для добавления элемента массива
     procedure Clear;
+    function First: TMyRec; inline;
+    function Last: TMyRec; inline;
   end;
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    btnFirstItem: TButton;
+    btnLastItem: TButton;
     CheckBox1: TCheckBox;
     Memo1: TMemo;
+    procedure btnFirstItemClick(Sender: TObject);
+    procedure btnLastItemClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -100,6 +107,12 @@ begin
     raise Exception.Create('Индекс вне диапазона');
 end;
 
+constructor TMyRecList.Create;
+begin
+  inherited Create;
+  Clear;
+end;
+
 destructor TMyRecList.Destroy;
 begin
   SetCapacity(0);
@@ -116,6 +129,16 @@ procedure TMyRecList.Clear;
 begin
   SetCount(0);
   SetCapacity(0);
+end;
+
+function TMyRecList.First: TMyRec;
+begin
+  Result := FMyRec[0];
+end;
+
+function TMyRecList.Last: TMyRec;
+begin
+  Result := FMyRec[Pred(Count)];
 end;
 
 { TForm1 }
@@ -135,6 +158,30 @@ begin
     FMyRec.IntVal:= i;
     FMyRecList.AddMyRec(MyRec);
   end;
+end;
+
+procedure TForm1.btnFirstItemClick(Sender: TObject);
+var
+  tmpRec: TMyRec;
+begin
+  if (MyRecList.Count = 0) then Exit;
+  tmpRec:= MyRecList.First;
+
+  Memo1.Lines.Add('');
+  Memo1.Lines.Add('=================');
+  Memo1.Lines.Add(Format('First item: %s ~ %d',[tmpRec.StrVal, tmpRec.IntVal]));
+end;
+
+procedure TForm1.btnLastItemClick(Sender: TObject);
+var
+  tmpRec: TMyRec;
+begin
+  if (MyRecList.Count = 0) then Exit;
+  tmpRec:= MyRecList.Last;
+
+  Memo1.Lines.Add('');
+  Memo1.Lines.Add('=================');
+  Memo1.Lines.Add(Format('Last item: %s ~ %d',[tmpRec.StrVal, tmpRec.IntVal]));
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
