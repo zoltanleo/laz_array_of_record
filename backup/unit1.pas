@@ -158,8 +158,6 @@ var
   i: Integer;
   //MyRec: TMyRec;
 begin
-  Memo1.Clear;
-
   if CheckBox1.Checked then FMyRecList.Clear;
 
   for i := 0 to Pred(8) do
